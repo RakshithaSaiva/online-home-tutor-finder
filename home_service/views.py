@@ -563,12 +563,26 @@ def accept_confirmation(request,pid):
     ser.save()
     return redirect('service_order')
 
-def confirm_message(request,pid):
+def confirm_message(request, pid):
     ser = Contact.objects.get(id=pid)
+    # Retrieve the Status object with the status 'read'
     sta = Status.objects.get(status='read')
+    # Set the status of the Contact object to 'read'
     ser.status = sta
+    # Save the changes made to the Contact object
     ser.save()
+
+    # Send confirmation email
+    subject = 'Message Confirmation'
+    message = render_to_string('confirmation_email.html', {'message': ser})
+    plain_message = strip_tags(message)
+    sender = 'your_email@example.com'  # Your email address
+    recipient = ser.email  # Email address of the recipient
+    send_mail(subject, plain_message, sender, [recipient], html_message=message)
+
+    # Redirect the user to the 'new_message' URL
     return redirect('new_message')
+
 
 def delete_service(request,pid):
     ser = Service_Category.objects.get(id=pid)
